@@ -17,8 +17,9 @@ Or install it yourself as:
     $ gem install atosl
 
 ## Usage
-
-TODO: Write usage instructions here
+```
+Usage: atosl --arch architecture -o executable -a [address,address,...]
+```
 
 ## Contributing
 

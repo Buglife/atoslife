@@ -1,5 +1,6 @@
 *.gem
 *.rbc
+lib/atosl/atosl.bundle
 .bundle
 .config
 .yardoc
@@ -18,3 +19,5 @@ tmp
 ext/atosl/atosl.bundle
 .DS_Store
 */.DS_Store
+ext/atosl/mkmf.log
+ext/atosl/Makefile

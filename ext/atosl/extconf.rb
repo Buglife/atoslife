@@ -1,6 +1,6 @@
 require "mkmf"
 
-extension_name = 'atosl'
+extension_name = 'atosl/atosl'
 
 abort "missing malloc()" unless have_func "malloc"
 abort "missing free()"   unless have_func "free"

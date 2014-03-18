@@ -1,6 +1,6 @@
 # Atosl
 
-TODO: Write a gem description
+atosl is used for converting binary addresses within a macho file to symbols for Linux platform.
 
 ## Installation
 

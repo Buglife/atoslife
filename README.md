@@ -26,7 +26,7 @@ Or install it yourself as:
 
 ## Reference
 
-    [Original](https://github.com/renoqiu/atosl "atosl").
+    https://github.com/renoqiu/atosl.
 
 ## Contributing
 

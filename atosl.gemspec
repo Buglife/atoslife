@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["dechao.qiu@gmail.com"]
   spec.summary       = %q{atos for Linux.}
   spec.description   = %q{atosl is used for converting binary addresses within a macho file to symbols.}
-  spec.homepage      = "https://github.com/renoqiu/atosl"
+  spec.homepage      = "https://github.com/renoqiu/atosl_ruby"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)

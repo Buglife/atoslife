@@ -20,6 +20,10 @@ Or install it yourself as:
 
     Usage: atosl --arch architecture -o executable -a [address,address,...]
 
+## Example
+
+    atosl --arch armv7s -o ~/res/CrashTest3Dwarf.thin -a 0x0000b1e7,0x123123
+
 ## Reference
 
     [Original](https://github.com/renoqiu/atosl "atosl").

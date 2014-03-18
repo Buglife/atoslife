@@ -117,7 +117,6 @@ int symbolicate(const char* arch, const char *executable, char *addresses[], int
 VALUE Atosl;
 
 VALUE symbolicate_wrapper(VALUE self, VALUE arch, VALUE executable, VALUE addresses){
-    printf("++++++++++++++");
     int numofaddresses = RARRAY_LEN(addresses);
     char *arch_str = RSTRING_PTR(StringValue(arch));
     char *executable_str = RSTRING_PTR(StringValue(executable));
@@ -125,11 +124,7 @@ VALUE symbolicate_wrapper(VALUE self, VALUE arch, VALUE executable, VALUE addres
     for (int i = 0; i < numofaddresses; i++){
         VALUE ret = rb_ary_entry(addresses, i);
         addresses_array[i] = RSTRING_PTR(StringValue(ret));
-        printf("%s\n", addresses_array[i]);
     }
-    printf("%s\n", arch_str);
-    printf("%s\n", executable_str);
-    printf("%d\n", numofaddresses);
     int result = symbolicate(arch_str, executable_str, addresses_array, numofaddresses);
     free(addresses_array);
     return INT2NUM(result);

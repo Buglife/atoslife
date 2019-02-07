@@ -1,3 +1,3 @@
 module Atosl
-  VERSION = "0.0.3"
+  VERSION = "0.0.28"
 end

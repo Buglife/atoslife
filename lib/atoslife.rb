@@ -1,7 +1,7 @@
-require "atosl/version"
-require 'atosl/atosl'
+require "atoslife/version"
+require 'atoslife/atoslife'
 
-module Atosl
+module Atoslife
   def self.convert(arch, executable, load_address, addresses)
     self.symbolicate(arch, executable, load_address, addresses);
   end

@@ -1,3 +1,3 @@
-module Atosl
+module Atoslife
   VERSION = "0.0.32"
 end

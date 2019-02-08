@@ -9,6 +9,6 @@ end
 desc "Run tests"
 task :default => :test
 
-Rake::ExtensionTask.new "atosl" do |ext|
-    ext.lib_dir = "lib/atosl"
+Rake::ExtensionTask.new "atoslife" do |ext|
+    ext.lib_dir = "lib/atoslife"
 end

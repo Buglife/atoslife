@@ -1172,7 +1172,7 @@ static void set_project_name(const char* full_filename){
 // * rb_define_singleton_method() take a module, the method name, a reference to
 //   a C function, and the method's arity, and exposes the C function as a
 //   single method on the given module
-VALUE Atosl;
+VALUE Atoslife;
 
 VALUE symbolicate_wrapper(VALUE self, VALUE arch, VALUE executable, VALUE loadaddress, VALUE addresses){
     int numofaddresses = RARRAY_LEN(addresses);
@@ -1233,9 +1233,9 @@ VALUE symbolicate_wrapper(VALUE self, VALUE arch, VALUE executable, VALUE loadad
 //     return 0;
 // }
 
-void Init_atosl(){
-    Atosl = rb_define_module("Atosl");
-    rb_define_singleton_method(Atosl, "symbolicate", symbolicate_wrapper, 4);
+void Init_atoslife(){
+    Atoslife = rb_define_module("Atoslife");
+    rb_define_singleton_method(Atoslife, "symbolicate", symbolicate_wrapper, 4);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////

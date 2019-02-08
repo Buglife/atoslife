@@ -1,6 +1,6 @@
 *.gem
 *.rbc
-lib/atosl/atosl.bundle
+lib/atoslife/atoslife.bundle
 .bundle
 .config
 .yardoc
@@ -16,8 +16,8 @@ spec/reports
 test/tmp
 test/version_tmp
 tmp
-ext/atosl/atosl.bundle
+ext/atoslife/atoslife.bundle
 .DS_Store
 */.DS_Store
-ext/atosl/mkmf.log
-ext/atosl/Makefile
+ext/atoslife/mkmf.log
+ext/atoslife/Makefile

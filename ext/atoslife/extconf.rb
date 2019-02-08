@@ -26,14 +26,19 @@ puts "ℹ️  Installing libdwarf..."
 # sys("tar zxvf #{LIBDWARF_TARBALL_FILENAME}")
 
 Dir.chdir("#{CWD}/libdwarf") do
+	puts "• Current directory: #{`pwd`}"
+
 	DIR_DST = "#{CWD}/dst"
 	DIR_DST_LIB = "#{CWD}/dst/lib"
 	DIR_DST_INCLUDE = "#{CWD}/dst/include"
 
 	ENV['CFLAGS'] = "-fPIC -I#{CWD}/dst/include"
     ENV['LDFLAGS'] = "-L#{CWD}/dst/lib"
+    puts "• Running configure..."
 	sys('./configure')
+	puts "• Running make..."
 	sys('make')
+	puts "• Running make install..."
 	sys('make install')
 
 	[DIR_DST, DIR_DST_LIB, DIR_DST_INCLUDE].each do |dir_path|

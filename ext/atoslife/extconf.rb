@@ -22,6 +22,9 @@ puts "Current working directory: #{CWD}"
 $LIBPATH.unshift "#{CWD}/dst/lib"
 $INCFLAGS[0,0] = "-I#{CWD}/dst/include "
 
+puts "• $LIBPATH = #{$LIBPATH}"
+puts "• $INCFLAGS = #{$INCFLAGS}"
+
 puts "ℹ️  Installing libdwarf..."
 # sys("tar zxvf #{LIBDWARF_TARBALL_FILENAME}")
 

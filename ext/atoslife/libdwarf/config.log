@@ -30,8 +30,8 @@ Kernel configured for up to 8 processors.
 Processor type: x86_64h (Intel x86-64h Haswell)
 Processors active: 0 1 2 3 4 5 6 7
 Primary memory available: 16.00 gigabytes
-Default processor set: 574 tasks, 2722 threads, 8 processors
-Load average: 2.92, Mach factor: 5.07
+Default processor set: 575 tasks, 2599 threads, 8 processors
+Load average: 2.25, Mach factor: 5.74
 /bin/machine           = unknown
 /usr/bin/oslevel       = unknown
 /bin/universe          = unknown
@@ -86,19 +86,16 @@ clang: error: no input files
 configure:3045: $? = 1
 configure:3065: checking whether the C compiler works
 configure:3087: gcc -fPIC -I/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/include  -L/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/lib conftest.c  >&5
-ld: warning: directory not found for option '-L/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/lib'
 configure:3091: $? = 0
 configure:3139: result: yes
 configure:3142: checking for C compiler default output file name
 configure:3144: result: a.out
 configure:3150: checking for suffix of executables
 configure:3157: gcc -o conftest -fPIC -I/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/include  -L/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/lib conftest.c  >&5
-ld: warning: directory not found for option '-L/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/lib'
 configure:3161: $? = 0
 configure:3183: result: 
 configure:3205: checking whether we are cross compiling
 configure:3213: gcc -o conftest -fPIC -I/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/include  -L/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/lib conftest.c  >&5
-ld: warning: directory not found for option '-L/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/lib'
 configure:3217: $? = 0
 configure:3224: ./conftest
 configure:3228: $? = 0
@@ -224,7 +221,6 @@ configure:6640: $? = 0
 configure:6644: /usr/bin/nm -B conftest.o \| sed -n -e 's/^.*[ ]\([BCDEGRST][BCDEGRST]*\)[ ][ ]*_\([_A-Za-z][_A-Za-z0-9]*\)$/\1 _\2 \2/p' | sed '/ __gnu_lto/d' \> conftest.nm
 configure:6647: $? = 0
 configure:6713: gcc -o conftest -fPIC -I/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/include  -L/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/lib conftest.c conftstm.o >&5
-ld: warning: directory not found for option '-L/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/lib'
 configure:6716: $? = 0
 configure:6754: result: ok
 configure:6801: checking for sysroot
@@ -257,7 +253,6 @@ gcc -fPIC -I/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/include -L/Us
 configure:7820: result: yes
 configure:7823: checking for -exported_symbols_list linker flag
 configure:7843: gcc -o conftest -fPIC -I/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/include  -L/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/lib -Wl,-exported_symbols_list,conftest.sym conftest.c  >&5
-ld: warning: directory not found for option '-L/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/lib'
 configure:7843: $? = 0
 configure:7853: result: yes
 configure:7856: checking for -force_load linker flag
@@ -312,7 +307,6 @@ configure:8098: checking for ANSI C header files
 configure:8118: gcc -c -fPIC -I/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/include  conftest.c >&5
 configure:8118: $? = 0
 configure:8191: gcc -o conftest -fPIC -I/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/include  -L/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/lib conftest.c  >&5
-ld: warning: directory not found for option '-L/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/lib'
 configure:8191: $? = 0
 configure:8191: ./conftest
 configure:8191: $? = 0
@@ -1700,17 +1694,14 @@ configure:18321: $? = 0
 configure:18333: checking for __uint64_t in sys/types.h
 configure:18335: result: yes
 configure:18404: gcc -o conftest -fPIC -I/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/include  -L/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/lib conftest.c  >&5
-ld: warning: directory not found for option '-L/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/lib'
 configure:18404: $? = 0
 configure:18462: checking for Elf64_Rela in elf.h
 configure:18464: result: yes
 configure:18493: gcc -o conftest -fPIC -I/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/include  -L/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/lib conftest.c  >&5
-ld: warning: directory not found for option '-L/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/lib'
 configure:18493: $? = 0
 configure:18551: checking for Elf64_Rel in elf.h
 configure:18553: result: yes
 configure:18582: gcc -o conftest -fPIC -I/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/include  -L/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/lib conftest.c  >&5
-ld: warning: directory not found for option '-L/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/lib'
 configure:18582: $? = 0
 configure:18640: checking for Elf64_Sym in elf.h
 configure:18642: result: yes
@@ -1945,22 +1936,18 @@ configure: failed program was:
 configure:19214: result: yes
 configure:19227: checking for working alloca.h
 configure:19244: gcc -o conftest -fPIC -I/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/include  -L/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/lib conftest.c  >&5
-ld: warning: directory not found for option '-L/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/lib'
 configure:19244: $? = 0
 configure:19252: result: yes
 configure:19260: checking for alloca
 configure:19297: gcc -o conftest -fPIC -I/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/include  -L/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/lib conftest.c  >&5
-ld: warning: directory not found for option '-L/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/lib'
 configure:19297: $? = 0
 configure:19305: result: yes
 configure:19417: checking for library containing elf64_getehdr
 configure:19448: gcc -o conftest -fPIC -I/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/include  -L/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/lib conftest.c   -lelf -lz >&5
-ld: warning: directory not found for option '-L/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/lib'
 configure:19448: $? = 0
 configure:19465: result: none required
 configure:19480: checking for library containing elf64_getshdr
 configure:19511: gcc -o conftest -fPIC -I/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/include  -L/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/lib conftest.c   -lelf -lz >&5
-ld: warning: directory not found for option '-L/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/lib'
 configure:19511: $? = 0
 configure:19528: result: none required
 configure:19644: gcc -c -fPIC -I/Users/schukin/src/crashlife/atoslife/ext/atoslife/dst/include  conftest.c >&5
@@ -1992,6 +1979,7 @@ config.status:1192: creating dwarfdump/Makefile
 config.status:1192: creating dwarfgen/Makefile
 config.status:1192: creating dwarfexample/Makefile
 config.status:1192: creating config.h
+config.status:1373: config.h is unchanged
 config.status:1421: executing depfiles commands
 config.status:1421: executing libtool commands
 config.status:1421: executing libdwarf/libdwarf.h commands

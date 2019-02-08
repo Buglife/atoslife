@@ -1014,7 +1014,7 @@ int print_subprogram_symbol(Dwarf_Addr slide, Dwarf_Addr addr)
 
 int print_dwarf_symbol(Dwarf_Debug dbg, Dwarf_Addr slide, Dwarf_Addr addr)
 {
-    static Dwarf_Arange *arange_buf = NULL;
+    Dwarf_Arange *arange_buf = NULL;
     Dwarf_Line *linebuf = NULL;
     Dwarf_Signed linecount = 0;
     Dwarf_Off cu_die_offset = 0;
@@ -1024,7 +1024,7 @@ int print_dwarf_symbol(Dwarf_Debug dbg, Dwarf_Addr slide, Dwarf_Addr addr)
     Dwarf_Addr start = 0;
     Dwarf_Unsigned length = 0;
     Dwarf_Arange arange;
-    static Dwarf_Signed count;
+    Dwarf_Signed count;
     int ret;
     Dwarf_Error err;
     int i;

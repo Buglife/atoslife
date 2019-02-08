@@ -1174,69 +1174,252 @@ static void set_project_name(const char* full_filename){
 //   single method on the given module
 VALUE Atosl;
 
-VALUE symbolicate_wrapper(VALUE self, VALUE arch, VALUE executable, VALUE addresses){
+VALUE symbolicate_wrapper(VALUE self, VALUE arch, VALUE executable, VALUE loadaddress, VALUE addresses){
     int numofaddresses = RARRAY_LEN(addresses);
     char *arch_str = RSTRING_PTR(StringValue(arch));
     char *executable_str = RSTRING_PTR(StringValue(executable));
+    char *loadaddress_str = RSTRING_PTR(StringValue(loadaddress));
     char **addresses_array = malloc(numofaddresses * sizeof(char *));
     for (int i = 0; i < numofaddresses; i++){
         VALUE ret = rb_ary_entry(addresses, i);
         addresses_array[i] = RSTRING_PTR(StringValue(ret));
     }
-    int result = symbolicate(arch_str, executable_str, addresses_array, numofaddresses);
+    int result = symbolicate(arch_str, executable_str, loadaddress_str, addresses_array, numofaddresses);
     free(addresses_array);
     return INT2NUM(result);
 }
 
 
-int symbolicate(const char* arch, const char *executable, char *addresses[], int numofaddresses){
-    debug("in symbolicate arch: %s executable: %s\n", arch, executable);
-    set_project_name(executable);
-    debug("about to parse file.");
-    struct target_file *tf = parse_file(executable);
-    if (tf == NULL){
-        debug("parse target file error.");
-        return -1;
-    }
-    debug("parse file finished.");
+// int symbolicate(const char* arch, const char *executable, char *addresses[], int numofaddresses){
+//     int dogNumber = 1;
+//     debug("HELLO THIS IS DOG %d", dogNumber);
+//     printf("HELLO THIS IS DOG %d", dogNumber);
+//     debug("in symbolicate arch: %s executable: %s\n", arch, executable);
+//     set_project_name(executable);
+//     debug("about to parse file.");
+//     struct target_file *tf = parse_file(executable);
+//     if (tf == NULL){
+//         debug("parse target file error.");
+//         return -1;
+//     }
+//     debug("parse file finished.");
 
-    struct thin_macho *thin_macho = NULL;
-    //TODO performance
-    int i = select_thin_macho_by_arch(tf, arch);
-    if(i == -1){
-        printf("atosl: Can not find macho for architecture: %s.\n", arch);
-        return -1;
-    }
-    thin_macho = tf->thin_machos[i];
-    //#ifdef DEBUG
-    //    print_all_dwarf2_per_objfile(thin_macho->dwarf2_per_objfile);
-    //#endif
+//     struct thin_macho *thin_macho = NULL;
+//     //TODO performance
+//     int i = select_thin_macho_by_arch(tf, arch);
+//     if(i == -1){
+//         printf("atosl: Can not find macho for architecture: %s.\n", arch);
+//         return -1;
+//     }
+//     thin_macho = tf->thin_machos[i];
+//     //#ifdef DEBUG
+//     //    print_all_dwarf2_per_objfile(thin_macho->dwarf2_per_objfile);
+//     //#endif
 
-    debug("thin_macho->dwarf2_per_objfile: %p.", thin_macho->dwarf2_per_objfile);
-    if(thin_macho->dwarf2_per_objfile != NULL){
-        debug("about to parse dwarf2 objfile.");
-        parse_dwarf2_per_objfile(thin_macho->dwarf2_per_objfile);
-        debug("parse dwarf2 objfile finished.");
-    }
+//     debug("thin_macho->dwarf2_per_objfile: %p.", thin_macho->dwarf2_per_objfile);
+//     if(thin_macho->dwarf2_per_objfile != NULL){
+//         debug("about to parse dwarf2 objfile.");
+//         parse_dwarf2_per_objfile(thin_macho->dwarf2_per_objfile);
+//         debug("parse dwarf2 objfile finished.");
+//     }
 
-    #ifdef DEBUG
-        print_thin_macho_aranges(thin_macho);
-    #endif
+//     #ifdef DEBUG
+//         print_thin_macho_aranges(thin_macho);
+//     #endif
 
-    debug("about to invoke numeric_to_symbols.");
-    numeric_to_symbols(thin_macho, (const char **)addresses, numofaddresses);
-    free_target_file(tf);
-    return 0;
-}
+//     debug("about to invoke numeric_to_symbols.");
+//     numeric_to_symbols(thin_macho, (const char **)addresses, numofaddresses);
+//     free_target_file(tf);
+//     return 0;
+// }
 
 void Init_atosl(){
     Atosl = rb_define_module("Atosl");
-    rb_define_singleton_method(Atosl, "symbolicate", symbolicate_wrapper, 3);
+    rb_define_singleton_method(Atosl, "symbolicate", symbolicate_wrapper, 4);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
 // main                                                                             //
 //////////////////////////////////////////////////////////////////////////////////////
+
+int symbolicate(const char* arch, const char *executable, const char *loadAddress, char *addresses[], int numofaddresses) {
+    int fd;
+    int ret;
+    int i;
+    Dwarf_Debug dbg = NULL;
+    Dwarf_Error err;
+    int derr = 0;
+    Dwarf_Obj_Access_Interface *binary_interface = NULL;
+    Dwarf_Ptr errarg = NULL;
+    int option_index;
+    int c;
+    int found = 0;
+    uint32_t magic;
+    cpu_type_t cpu_type = -1;
+    cpu_subtype_t cpu_subtype = -1;
+    Dwarf_Addr address;
+
+    memset(&context, 0, sizeof(context));
+
+    // 1. First set the VM load address
+
+    address = strtol(loadAddress, (char **)NULL, 16);
+    // if (errno != 0)
+    //     fatal("invalid load address: `%s': %s (error code %d)", loadAddress, strerror(errno), errno);
+    options.load_address = address;
+
+    // 2. Debug symbol filename
+    options.dsym_filename = executable;
+
+    // 3. Then get the architecture
+    printf("• Getting architecture");
+
+    for (i = 0; i < NUMOF(arch_str_to_type); i++) {
+        printf("  • loop %d", i);
+        if (strcmp(arch_str_to_type[i].name, optarg) == 0) {
+            cpu_type = arch_str_to_type[i].type;
+            cpu_subtype = arch_str_to_type[i].subtype;
+            break;
+        }
+    }
+    if ((cpu_type < 0) && (cpu_subtype < 0))
+        fatal("unsupported architecture `%s'", optarg);
+    options.cpu_type = cpu_type;
+    options.cpu_subtype = cpu_subtype;
+
+    // 4. And then do all the magical stuff
+
+    if (!options.dsym_filename)
+        fatal("no filename specified with -o");
+
+    fd = open(options.dsym_filename, O_RDONLY);
+    if (fd < 0)
+        fatal("unable to open `%s': %s",
+              options.dsym_filename,
+              strerror(errno));
+
+    ret = _read(fd, &magic, sizeof(magic));
+    if (ret < 0)
+        fatal_file(fd);
+
+    if (magic == FAT_CIGAM) {
+        /* Find the architecture we want.. */
+        uint32_t nfat_arch;
+
+        ret = _read(fd, &nfat_arch, sizeof(nfat_arch));
+        if (ret < 0)
+            fatal_file(fd);
+
+        nfat_arch = ntohl(nfat_arch);
+        for (i = 0; i < nfat_arch; i++) {
+            ret = _read(fd, &context.arch, sizeof(context.arch));
+            if (ret < 0)
+                fatal("unable to read arch struct");
+
+            context.arch.cputype = ntohl(context.arch.cputype);
+            context.arch.cpusubtype = ntohl(context.arch.cpusubtype);
+            context.arch.offset = ntohl(context.arch.offset);
+
+            if ((context.arch.cputype == options.cpu_type) &&
+                (context.arch.cpusubtype == options.cpu_subtype)) {
+                /* good! */
+                ret = lseek(fd, context.arch.offset, SEEK_SET);
+                if (ret < 0)
+                    fatal("unable to seek to arch (offset=%ld): %s",
+                          context.arch.offset, strerror(errno));
+
+                ret = _read(fd, &magic, sizeof(magic));
+                if (ret < 0)
+                    fatal_file(fd);
+
+                found = 1;
+                break;
+            } else {
+                /* skip */
+                if (debug) {
+                    fprintf(stderr, "Skipping arch: %x %x\n",
+                            context.arch.cputype, context.arch.cpusubtype);
+                }
+            }
+        }
+    } else {
+        found = 1;
+    }
+
+    if (!found)
+        fatal("no valid architectures found");
+
+    if (magic != MH_MAGIC && magic != MH_MAGIC_64)
+      fatal("invalid magic for architecture");
+
+    dwarf_mach_object_access_init(fd, &binary_interface, &derr);
+    assert(binary_interface);
+
+    if (options.load_address == LONG_MAX)
+        options.load_address = context.intended_addr;
+
+    ret = dwarf_object_init(binary_interface,
+                            dwarf_error_handler,
+                            errarg, &dbg, &err);
+    DWARF_ASSERT(ret, err);
+
+    /* If there is dwarf info we'll use that to parse, otherwise we'll use the
+     * symbol table */
+    if (context.is_dwarf && ret == DW_DLV_OK) {
+
+        struct subprograms_options_t opts = {
+            .persistent = options.use_cache,
+            .cache_dir = options.cache_dir,
+        };
+
+        context.subprograms =
+            subprograms_load(dbg,
+                             context.uuid,
+                             options.use_globals ? SUBPROGRAMS_GLOBALS :
+                                                   SUBPROGRAMS_CUS,
+                             &opts);
+
+        for (i = 0; i < numofaddresses; i++) {
+            Dwarf_Addr addr;
+            // errno = 0;
+            addr = strtol(addresses[i], (char **)NULL, 16);
+            // if (errno != 0)
+            //     fatal("invalid address: `%s': %s", addresses[i], strerror(errno));
+            ret = print_dwarf_symbol(dbg,
+                                 options.load_address - context.intended_addr,
+                                 addr);
+            if (ret != DW_DLV_OK) {
+                derr = print_subprogram_symbol(
+                         options.load_address - context.intended_addr, addr);
+            }
+
+            if ((ret != DW_DLV_OK) && derr) {
+                printf("%s\n", addresses[i]);
+            }
+        }
+
+        dwarf_mach_object_access_finish(binary_interface);
+
+        ret = dwarf_object_finish(dbg, &err);
+        DWARF_ASSERT(ret, err);
+    } else {
+        for (i = 0; i < numofaddresses; i++) {
+            Dwarf_Addr addr;
+            // errno = 0;
+            addr = strtol(addresses[i], (char **)NULL, 16);
+            // if (errno != 0)
+            //     fatal("invalid address address: `%s': %s", addresses[i], strerror(errno));
+            ret = find_and_print_symtab_symbol(
+                    options.load_address - context.intended_addr,
+                    addr);
+
+            if (ret != DW_DLV_OK)
+                printf("%s\n", addresses[i]);
+        }
+    }
+
+    close(fd);
+}
 
 int main(int argc, char *argv[]) {
     int fd;

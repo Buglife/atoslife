@@ -38,6 +38,10 @@ Or install it yourself as:
 
     atosl --arch armv7s -o ~/res/CrashTest3Dwarf.thin -a 0x0000b1e7,0x123123
 
+## Development
+
+For easy & quick debugging, get [rake-compiler](https://github.com/rake-compiler/rake-compiler) to build for local installation.
+
 ## Reference
 
 [Original](https://github.com/renoqiu/atosl "atosl").

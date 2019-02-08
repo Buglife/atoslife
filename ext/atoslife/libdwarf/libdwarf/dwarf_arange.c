@@ -486,36 +486,36 @@ dwarf_get_arange(Dwarf_Arange * aranges,
     Dwarf_Addr address,
     Dwarf_Arange * returned_arange, Dwarf_Error * error)
 {
-    printf("• dwarf_get_arange 1");
+    printf("• dwarf_get_arange 1 a 1 \n");
     Dwarf_Arange curr_arange = 0;
     Dwarf_Unsigned i = 0;
 
     if (aranges == NULL) {
-        printf("• dwarf_get_arange 2");
+        printf("• dwarf_get_arange 2 \n");
         _dwarf_error(NULL, error, DW_DLE_ARANGES_NULL);
-        printf("• dwarf_get_arange 3");
+        printf("• dwarf_get_arange 3 \n");
         return (DW_DLV_ERROR);
     }
 
     printf("• dwarf_get_arange 4");
 
     for (i = 0; i < arange_count; i++) {
-        printf("  • dwarf_get_arange 5 %d", arange_count);
+        printf("  • dwarf_get_arange 5 [%d] \n", i);
         curr_arange = *(aranges + i);
-        printf("  • dwarf_get_arange 6");
+        printf("  • dwarf_get_arange 6 \n");
         if (address >= curr_arange->ar_address &&
             address <
             curr_arange->ar_address + curr_arange->ar_length) {
-            printf("  • dwarf_get_arange 7");
+            printf("  • dwarf_get_arange 7 \n");
             *returned_arange = curr_arange;
-            printf("  • dwarf_get_arange 8");
+            printf("  • dwarf_get_arange 8 \n");
             return (DW_DLV_OK);
         }
 
-        printf("  • dwarf_get_arange 9");
+        printf("  • dwarf_get_arange 9 \n");
     }
 
-    printf("  • dwarf_get_arange 10");
+    printf("  • dwarf_get_arange 10 \n");
 
     return (DW_DLV_NO_ENTRY);
 }

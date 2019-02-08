@@ -43,6 +43,7 @@
 
 extern char *
 cplus_demangle (const char *mangled, int options);
+int symbolicate(const char* arch, const char *executable, const char *loadAddress, char *addresses[], int numofaddresses);
 
 typedef unsigned long Dwarf_Word;
 
@@ -57,6 +58,13 @@ _dwarf_decode_u_leb128(Dwarf_Small * leb128,
     } while (0)
 
 static int debug = 0;
+#define ATOSLIFE_SIZE 1024
+static char atoslifeResult[ATOSLIFE_SIZE];
+static int runCounter = 0;
+
+void logDebugInfo() {
+    printf("• DEBUG: [%d] [%s]\n", strlen(atoslifeResult), atoslifeResult);
+}
 
 static const char *shortopts = "vl:o:A:gcC:VhD";
 static struct option longopts[] = {
@@ -113,7 +121,8 @@ static struct {
 } options = {
     .load_address = LONG_MAX,
     .use_globals = 0,
-    .use_cache = 1,
+    // .use_cache = 1,
+    .use_cache = 0,
     .cpu_type = CPU_TYPE_ARM,
     .cpu_subtype = CPU_SUBTYPE_ARM_V7S,
     .should_demangle = 1,
@@ -500,11 +509,20 @@ void print_symbol(const char *symbol, unsigned offset)
     if (name[0] == '_')
         name++;
 
-    printf("%s%s (in %s) + %d\n",
+    // printf("%s%s (in %s) + %d\n",
+    //         name,
+    //         demangled ? "()" : "",
+    //         basename((char *)options.dsym_filename),
+    //         offset);
+
+    snprintf(atoslifeResult, 
+            ATOSLIFE_SIZE,
+            "%s%s (in %s) + %d\n",
             name,
             demangled ? "()" : "",
             basename((char *)options.dsym_filename),
             offset);
+    logDebugInfo();
 
     if (demangled)
         free(demangled);
@@ -974,10 +992,18 @@ int print_subprogram_symbol(Dwarf_Addr slide, Dwarf_Addr addr)
 
     if (match) {
         demangled = options.should_demangle ? demangle(match->name) : NULL;
-        printf("%s (in %s) + %d\n",
-               demangled ?: match->name,
-               basename((char *)options.dsym_filename),
-               (unsigned int)(addr - match->lowpc));
+        // printf("%s (in %s) + %d\n",
+        //        demangled ?: match->name,
+        //        basename((char *)options.dsym_filename),
+        //        (unsigned int)(addr - match->lowpc));
+
+        snprintf(atoslifeResult, 
+                ATOSLIFE_SIZE,
+                "%s (in %s) + %d\n",
+                demangled ?: match->name,
+                basename((char *)options.dsym_filename),
+                (unsigned int)(addr - match->lowpc));
+        logDebugInfo();
         if (demangled)
             free(demangled);
 
@@ -988,7 +1014,6 @@ int print_subprogram_symbol(Dwarf_Addr slide, Dwarf_Addr addr)
 
 int print_dwarf_symbol(Dwarf_Debug dbg, Dwarf_Addr slide, Dwarf_Addr addr)
 {
-    static int callCount = 0;
     static Dwarf_Arange *arange_buf = NULL;
     Dwarf_Line *linebuf = NULL;
     Dwarf_Signed linecount = 0;
@@ -1011,8 +1036,6 @@ int print_dwarf_symbol(Dwarf_Debug dbg, Dwarf_Addr slide, Dwarf_Addr addr)
         ret = dwarf_get_aranges(dbg, &arange_buf, &count, &err);
         DWARF_ASSERT(ret, err);
     }
-    printf("calling dwarf_get_arange %d times", callCount);
-    callCount = callCount + 1;
     ret = dwarf_get_arange(arange_buf, count, addr, &arange, &err);
     DWARF_ASSERT(ret, err);
 
@@ -1091,10 +1114,18 @@ int print_dwarf_symbol(Dwarf_Debug dbg, Dwarf_Addr slide, Dwarf_Addr addr)
 
             demangled = options.should_demangle ? demangle(name) : NULL;
 
-            printf("%s (in %s) (%s:%d)\n",
-                   demangled ? demangled : name,
-                   basename((char *)options.dsym_filename),
-                   basename(filename), (int)lineno);
+            // printf("%s (in %s) (%s:%d)\n",
+            //        demangled ? demangled : name,
+            //        basename((char *)options.dsym_filename),
+            //        basename(filename), (int)lineno);
+
+            snprintf(atoslifeResult,
+                    ATOSLIFE_SIZE,
+                    "%s (in %s) (%s:%d)\n",
+                    demangled ? demangled : name,
+                    basename((char *)options.dsym_filename),
+                    basename(filename), (int)lineno);
+            logDebugInfo();
 
             found = 1;
 
@@ -1148,7 +1179,9 @@ static void numeric_to_symbols(struct thin_macho *thin_macho, const char **addre
         }
 
         if (lookup_by_address(thin_macho, integer_address) != 0){
-            printf("%s\n", addresses[i]);
+            // printf("%s\n", addresses[i]);
+            snprintf(atoslifeResult, ATOSLIFE_SIZE, "%s\n", addresses[i]);
+            logDebugInfo();
         }
     }
 }
@@ -1177,6 +1210,10 @@ static void set_project_name(const char* full_filename){
 VALUE Atoslife;
 
 VALUE symbolicate_wrapper(VALUE self, VALUE arch, VALUE executable, VALUE loadaddress, VALUE addresses){
+    printf("• symbolicate_wrapper(...)\n");
+    memset(atoslifeResult, '\0', sizeof(atoslifeResult));
+    logDebugInfo();
+
     int numofaddresses = RARRAY_LEN(addresses);
     char *arch_str = RSTRING_PTR(StringValue(arch));
     char *executable_str = RSTRING_PTR(StringValue(executable));
@@ -1187,53 +1224,20 @@ VALUE symbolicate_wrapper(VALUE self, VALUE arch, VALUE executable, VALUE loadad
         addresses_array[i] = RSTRING_PTR(StringValue(ret));
     }
     int result = symbolicate(arch_str, executable_str, loadaddress_str, addresses_array, numofaddresses);
+
+    printf("• result = %d\n", result);
     free(addresses_array);
-    return INT2NUM(result);
+
+    if (result == 0) {
+        printf("• found a result: %s\n", atoslifeResult);
+        return rb_str_new2(atoslifeResult);
+    } else {
+        printf("• Returning nil\n");
+        return Qnil;
+    }
+
+    // return INT2NUM(result);
 }
-
-
-// int symbolicate(const char* arch, const char *executable, char *addresses[], int numofaddresses){
-//     int dogNumber = 1;
-//     debug("HELLO THIS IS DOG %d", dogNumber);
-//     printf("HELLO THIS IS DOG %d", dogNumber);
-//     debug("in symbolicate arch: %s executable: %s\n", arch, executable);
-//     set_project_name(executable);
-//     debug("about to parse file.");
-//     struct target_file *tf = parse_file(executable);
-//     if (tf == NULL){
-//         debug("parse target file error.");
-//         return -1;
-//     }
-//     debug("parse file finished.");
-
-//     struct thin_macho *thin_macho = NULL;
-//     //TODO performance
-//     int i = select_thin_macho_by_arch(tf, arch);
-//     if(i == -1){
-//         printf("atosl: Can not find macho for architecture: %s.\n", arch);
-//         return -1;
-//     }
-//     thin_macho = tf->thin_machos[i];
-//     //#ifdef DEBUG
-//     //    print_all_dwarf2_per_objfile(thin_macho->dwarf2_per_objfile);
-//     //#endif
-
-//     debug("thin_macho->dwarf2_per_objfile: %p.", thin_macho->dwarf2_per_objfile);
-//     if(thin_macho->dwarf2_per_objfile != NULL){
-//         debug("about to parse dwarf2 objfile.");
-//         parse_dwarf2_per_objfile(thin_macho->dwarf2_per_objfile);
-//         debug("parse dwarf2 objfile finished.");
-//     }
-
-//     #ifdef DEBUG
-//         print_thin_macho_aranges(thin_macho);
-//     #endif
-
-//     debug("about to invoke numeric_to_symbols.");
-//     numeric_to_symbols(thin_macho, (const char **)addresses, numofaddresses);
-//     free_target_file(tf);
-//     return 0;
-// }
 
 void Init_atoslife(){
     Atoslife = rb_define_module("Atoslife");
@@ -1245,6 +1249,9 @@ void Init_atoslife(){
 //////////////////////////////////////////////////////////////////////////////////////
 
 int symbolicate(const char* arch, const char *executable, const char *loadAddress, char *addresses[], int numofaddresses) {
+    runCounter = runCounter + 1;
+    printf("• runCounter = %d\n", runCounter);
+
     int fd;
     int ret;
     int i;
@@ -1265,9 +1272,10 @@ int symbolicate(const char* arch, const char *executable, const char *loadAddres
 
     // 1. First set the VM load address
 
+    errno = 0;
     address = strtol(loadAddress, (char **)NULL, 16);
-    // if (errno != 0)
-    //     fatal("invalid load address: `%s': %s (error code %d)", loadAddress, strerror(errno), errno);
+    if (errno != 0)
+        fatal("invalid load address: `%s': %s (error code %d)", loadAddress, strerror(errno), errno);
     options.load_address = address;
 
     // 2. Debug symbol filename
@@ -1381,10 +1389,10 @@ int symbolicate(const char* arch, const char *executable, const char *loadAddres
 
         for (i = 0; i < numofaddresses; i++) {
             Dwarf_Addr addr;
-            // errno = 0;
+            errno = 0;
             addr = strtol(addresses[i], (char **)NULL, 16);
-            // if (errno != 0)
-            //     fatal("invalid address: `%s': %s", addresses[i], strerror(errno));
+            if (errno != 0)
+                fatal("invalid address: `%s': %s", addresses[i], strerror(errno));
             ret = print_dwarf_symbol(dbg,
                                  options.load_address - context.intended_addr,
                                  addr);
@@ -1394,7 +1402,9 @@ int symbolicate(const char* arch, const char *executable, const char *loadAddres
             }
 
             if ((ret != DW_DLV_OK) && derr) {
-                printf("%s\n", addresses[i]);
+                // printf("%s\n", addresses[i]);
+                snprintf(atoslifeResult, ATOSLIFE_SIZE, "%s\n", addresses[i]);
+                logDebugInfo();
             }
         }
 
@@ -1405,230 +1415,27 @@ int symbolicate(const char* arch, const char *executable, const char *loadAddres
     } else {
         for (i = 0; i < numofaddresses; i++) {
             Dwarf_Addr addr;
-            // errno = 0;
+            errno = 0;
             addr = strtol(addresses[i], (char **)NULL, 16);
-            // if (errno != 0)
-            //     fatal("invalid address address: `%s': %s", addresses[i], strerror(errno));
+            if (errno != 0)
+                fatal("invalid address address: `%s': %s", addresses[i], strerror(errno));
             ret = find_and_print_symtab_symbol(
                     options.load_address - context.intended_addr,
                     addr);
 
-            if (ret != DW_DLV_OK)
-                printf("%s\n", addresses[i]);
+            if (ret != DW_DLV_OK) {
+                // printf("%s\n", addresses[i]);
+                snprintf(atoslifeResult, ATOSLIFE_SIZE, "%s\n", addresses[i]);
+                logDebugInfo();
+            }
         }
     }
 
     close(fd);
+    return 0;
 }
 
 int main(int argc, char *argv[]) {
-    int fd;
-    int ret;
-    int i;
-    Dwarf_Debug dbg = NULL;
-    Dwarf_Error err;
-    int derr = 0;
-    Dwarf_Obj_Access_Interface *binary_interface = NULL;
-    Dwarf_Ptr errarg = NULL;
-    int option_index;
-    int c;
-    int found = 0;
-    uint32_t magic;
-    cpu_type_t cpu_type = -1;
-    cpu_subtype_t cpu_subtype = -1;
-    Dwarf_Addr address;
-
-    memset(&context, 0, sizeof(context));
-
-    while ((c = getopt_long(argc, argv, shortopts, longopts, &option_index))
-            >= 0) {
-        switch (c) {
-            case 'l':
-                errno = 0;
-                address = strtol(optarg, (char **)NULL, 16);
-                if (errno != 0)
-                    fatal("invalid load address: `%s': %s", optarg, strerror(errno));
-                options.load_address = address;
-                break;
-            case 'o':
-                options.dsym_filename = optarg;
-                break;
-            case 'A':
-                for (i = 0; i < NUMOF(arch_str_to_type); i++) {
-                    if (strcmp(arch_str_to_type[i].name, optarg) == 0) {
-                        cpu_type = arch_str_to_type[i].type;
-                        cpu_subtype = arch_str_to_type[i].subtype;
-                        break;
-                    }
-                }
-                if ((cpu_type < 0) && (cpu_subtype < 0))
-                    fatal("unsupported architecture `%s'", optarg);
-                options.cpu_type = cpu_type;
-                options.cpu_subtype = cpu_subtype;
-                break;
-            case 'v':
-                debug = 1;
-                break;
-            case 'g':
-                options.use_globals = 1;
-                break;
-            case 'c':
-                options.use_cache = 0;
-                break;
-            case 'C':
-                options.cache_dir = optarg;
-                break;
-            case 'D':
-                options.should_demangle = 0;
-                break;
-            case 'V':
-                fprintf(stderr, "atosl %s\n", VERSION);
-                exit(EXIT_SUCCESS);
-            case '?':
-                print_help();
-                exit(EXIT_FAILURE);
-            case 'h':
-                print_help();
-                exit(EXIT_SUCCESS);
-            default:
-                fatal("unhandled option");
-        }
-    }
-
-    if (!options.dsym_filename)
-        fatal("no filename specified with -o");
-
-    fd = open(options.dsym_filename, O_RDONLY);
-    if (fd < 0)
-        fatal("unable to open `%s': %s",
-              options.dsym_filename,
-              strerror(errno));
-
-    ret = _read(fd, &magic, sizeof(magic));
-    if (ret < 0)
-        fatal_file(fd);
-
-    if (magic == FAT_CIGAM) {
-        /* Find the architecture we want.. */
-        uint32_t nfat_arch;
-
-        ret = _read(fd, &nfat_arch, sizeof(nfat_arch));
-        if (ret < 0)
-            fatal_file(fd);
-
-        nfat_arch = ntohl(nfat_arch);
-        for (i = 0; i < nfat_arch; i++) {
-            ret = _read(fd, &context.arch, sizeof(context.arch));
-            if (ret < 0)
-                fatal("unable to read arch struct");
-
-            context.arch.cputype = ntohl(context.arch.cputype);
-            context.arch.cpusubtype = ntohl(context.arch.cpusubtype);
-            context.arch.offset = ntohl(context.arch.offset);
-
-            if ((context.arch.cputype == options.cpu_type) &&
-                (context.arch.cpusubtype == options.cpu_subtype)) {
-                /* good! */
-                ret = lseek(fd, context.arch.offset, SEEK_SET);
-                if (ret < 0)
-                    fatal("unable to seek to arch (offset=%ld): %s",
-                          context.arch.offset, strerror(errno));
-
-                ret = _read(fd, &magic, sizeof(magic));
-                if (ret < 0)
-                    fatal_file(fd);
-
-                found = 1;
-                break;
-            } else {
-                /* skip */
-                if (debug) {
-                    fprintf(stderr, "Skipping arch: %x %x\n",
-                            context.arch.cputype, context.arch.cpusubtype);
-                }
-            }
-        }
-    } else {
-        found = 1;
-    }
-
-    if (!found)
-        fatal("no valid architectures found");
-
-    if (magic != MH_MAGIC && magic != MH_MAGIC_64)
-      fatal("invalid magic for architecture");
-
-    if (argc <= optind)
-        fatal_usage("no addresses specified");
-
-    dwarf_mach_object_access_init(fd, &binary_interface, &derr);
-    assert(binary_interface);
-
-    if (options.load_address == LONG_MAX)
-        options.load_address = context.intended_addr;
-
-    ret = dwarf_object_init(binary_interface,
-                            dwarf_error_handler,
-                            errarg, &dbg, &err);
-    DWARF_ASSERT(ret, err);
-
-    /* If there is dwarf info we'll use that to parse, otherwise we'll use the
-     * symbol table */
-    if (context.is_dwarf && ret == DW_DLV_OK) {
-
-        struct subprograms_options_t opts = {
-            .persistent = options.use_cache,
-            .cache_dir = options.cache_dir,
-        };
-
-        context.subprograms =
-            subprograms_load(dbg,
-                             context.uuid,
-                             options.use_globals ? SUBPROGRAMS_GLOBALS :
-                                                   SUBPROGRAMS_CUS,
-                             &opts);
-
-        for (i = optind; i < argc; i++) {
-            Dwarf_Addr addr;
-            errno = 0;
-            addr = strtol(argv[i], (char **)NULL, 16);
-            if (errno != 0)
-                fatal("invalid address: `%s': %s", argv[i], strerror(errno));
-            ret = print_dwarf_symbol(dbg,
-                                 options.load_address - context.intended_addr,
-                                 addr);
-            if (ret != DW_DLV_OK) {
-                derr = print_subprogram_symbol(
-                         options.load_address - context.intended_addr, addr);
-            }
-
-            if ((ret != DW_DLV_OK) && derr) {
-                printf("%s\n", argv[i]);
-            }
-        }
-
-        dwarf_mach_object_access_finish(binary_interface);
-
-        ret = dwarf_object_finish(dbg, &err);
-        DWARF_ASSERT(ret, err);
-    } else {
-        for (i = optind; i < argc; i++) {
-            Dwarf_Addr addr;
-            errno = 0;
-            addr = strtol(argv[i], (char **)NULL, 16);
-            if (errno != 0)
-                fatal("invalid address address: `%s': %s", optarg, strerror(errno));
-            ret = find_and_print_symtab_symbol(
-                    options.load_address - context.intended_addr,
-                    addr);
-
-            if (ret != DW_DLV_OK)
-                printf("%s\n", argv[i]);
-        }
-    }
-
-    close(fd);
-
     return 0;
 }
 

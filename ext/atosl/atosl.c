@@ -1272,18 +1272,16 @@ int symbolicate(const char* arch, const char *executable, const char *loadAddres
     options.dsym_filename = executable;
 
     // 3. Then get the architecture
-    printf("• Getting architecture");
 
     for (i = 0; i < NUMOF(arch_str_to_type); i++) {
-        printf("  • loop %d", i);
-        if (strcmp(arch_str_to_type[i].name, optarg) == 0) {
+        if (strcmp(arch_str_to_type[i].name, arch) == 0) {
             cpu_type = arch_str_to_type[i].type;
             cpu_subtype = arch_str_to_type[i].subtype;
             break;
         }
     }
     if ((cpu_type < 0) && (cpu_subtype < 0))
-        fatal("unsupported architecture `%s'", optarg);
+        fatal("unsupported architecture `%s'", arch);
     options.cpu_type = cpu_type;
     options.cpu_subtype = cpu_subtype;
 

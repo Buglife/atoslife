@@ -4,10 +4,11 @@ Development notes:
 
 1. `rvm current` to find out which rvm
 2. Make sure gems are being installed at `/Users/USERNAME/.rvm/gems/ruby-2.X.Y/gems`
+3. Make sure you have libelf `brew install libelf`
 3. Make whatever code changes
-4. To test, run this (but **change ruby-2.X.Y to your ruby version!!!**)
+4. To test, run this (but **change ruby-2.5.1 to your ruby version!!!**)
 ```
-rm atosl-0.0.32.gem ; rm -rf /Users/schukin/.rvm/gems/ruby-2.X.Y/gems/atosl-0.0.32 ; gem build atosl.gemspec ; gem install atosl-0.0.32.gem ; ruby ./test.rb
+rm atosl-0.0.32.gem ; rm -rf /Users/danielhd/.rbenv/versions/2.5.1/lib/ruby/gems/2.5.0/gems/atosl-0.0.32 ; gem build atosl.gemspec ; gem install atosl-0.0.32.gem ; ruby ./test.rb
 ```
 
 

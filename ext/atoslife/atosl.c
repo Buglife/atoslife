@@ -988,6 +988,7 @@ int print_subprogram_symbol(Dwarf_Addr slide, Dwarf_Addr addr)
 
 int print_dwarf_symbol(Dwarf_Debug dbg, Dwarf_Addr slide, Dwarf_Addr addr)
 {
+    static int callCount = 0;
     static Dwarf_Arange *arange_buf = NULL;
     Dwarf_Line *linebuf = NULL;
     Dwarf_Signed linecount = 0;
@@ -1010,7 +1011,8 @@ int print_dwarf_symbol(Dwarf_Debug dbg, Dwarf_Addr slide, Dwarf_Addr addr)
         ret = dwarf_get_aranges(dbg, &arange_buf, &count, &err);
         DWARF_ASSERT(ret, err);
     }
-
+    printf("calling dwarf_get_arange %d times", callCount);
+    callCount = callCount + 1;
     ret = dwarf_get_arange(arange_buf, count, addr, &arange, &err);
     DWARF_ASSERT(ret, err);
 

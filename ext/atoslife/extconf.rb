@@ -58,3 +58,7 @@ puts "✅  libdwarf installed"
 
 dir_config(extension_name)
 create_makefile(extension_name)
+
+require 'rake/extensiontask'
+Rake::ExtensionTask.new(extension_name)
+

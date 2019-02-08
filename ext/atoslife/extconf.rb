@@ -23,9 +23,9 @@ $LIBPATH.unshift "#{CWD}/dst/lib"
 $INCFLAGS[0,0] = "-I#{CWD}/dst/include "
 
 puts "ℹ️  Installing libdwarf..."
-sys("tar zxvf #{LIBDWARF_TARBALL_FILENAME}")
+# sys("tar zxvf #{LIBDWARF_TARBALL_FILENAME}")
 
-Dir.chdir('libdwarf') do
+Dir.chdir("#{CWD}/libdwarf") do
 	DIR_DST = "#{CWD}/dst"
 	DIR_DST_LIB = "#{CWD}/dst/lib"
 	DIR_DST_INCLUDE = "#{CWD}/dst/include"

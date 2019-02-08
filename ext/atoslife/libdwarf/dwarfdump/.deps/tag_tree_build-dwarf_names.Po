@@ -1,0 +1,6 @@
+tag_tree_build-dwarf_names.o: dwarf_names.c ../libdwarf/dwarf.h \
+  ../libdwarf/libdwarf.h
+
+../libdwarf/dwarf.h:
+
+../libdwarf/libdwarf.h:

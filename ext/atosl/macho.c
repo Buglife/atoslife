@@ -1415,6 +1415,10 @@ int select_thin_macho_by_arch(struct target_file *tf, const char *target_arch){
     char *arch = NULL;
     while(i < tf->numofarchs){
         struct thin_macho *thin_macho = tf->thin_machos[i];
+
+        printf("• thin_macho->cputype: %d\n", thin_macho->cputype);
+        printf("• thin_macho->cpusubtype: %d\n", thin_macho->cpusubtype);
+
         switch(thin_macho->cputype){
            case CPU_TYPE_ARM:
                {
@@ -1446,6 +1450,11 @@ int select_thin_macho_by_arch(struct target_file *tf, const char *target_arch){
                    }
                    break;
                }
+           case CPU_TYPE_ARM64:
+           {
+                arch = "arm64";
+                break;
+           }
            case CPU_TYPE_I386:
                //i386
                arch = "i386";
@@ -1463,6 +1472,14 @@ int select_thin_macho_by_arch(struct target_file *tf, const char *target_arch){
                arch = "ppc64";
                break;
         }
+
+        if (arch != NULL) {
+            printf("• DSDSDS Found architecture: %s\n", arch);
+        } else {
+            printf("• Oops, No arch found for cputype  %d\n", thin_macho->cputype);
+            printf("                   and cpusubtype %d\n", thin_macho->cpusubtype);
+        }
+
         if (arch != NULL && strcmp(arch, target_arch) == 0){
             return i;
         }

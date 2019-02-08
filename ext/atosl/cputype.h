@@ -105,6 +105,7 @@
 /* skip				((cpu_type_t) 17)	*/
 #define CPU_TYPE_POWERPC		((cpu_type_t) 18)
 #define CPU_TYPE_POWERPC64		(CPU_TYPE_POWERPC | CPU_ARCH_ABI64)
+#define CPU_TYPE_ARM64 		((cpu_type_t)16777228)
 
 /*
  *	Machine subtypes (these are defined here, instead of in a machine

@@ -5,7 +5,7 @@ require 'atoslife/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "atoslife"
-  spec.version       = Atosl::VERSION
+  spec.version       = Atoslife::VERSION
   spec.authors       = ["Reno Qiu"]
   spec.email         = ["dechao.qiu@gmail.com"]
   spec.summary       = %q{atoslife for Linux.}

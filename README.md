@@ -8,7 +8,7 @@ Development notes:
 3. Make whatever code changes
 4. To test, run this (but **change ruby-2.5.1 to your ruby version!!!**)
 ```
-rm atosl-0.0.32.gem ; rm -rf /Users/danielhd/.rbenv/versions/2.5.1/lib/ruby/gems/2.5.0/gems/atosl-0.0.32 ; gem build atosl.gemspec ; gem install atosl-0.0.32.gem ; ruby ./test.rb
+rm atoslife-0.0.40.gem ; rm -rf /Users/schukin/.rvm/gems/ruby-2.5.1/lib/ruby/gems/2.5.0/gems/atoslife-0.0.40 ; gem build atoslife.gemspec ; gem install atoslife-0.0.40.gem ; ruby ./test.rb
 ```
 
 

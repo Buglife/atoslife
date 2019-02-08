@@ -6,11 +6,11 @@ require 'atoslife/version'
 Gem::Specification.new do |spec|
   spec.name          = "atoslife"
   spec.version       = Atoslife::VERSION
-  spec.authors       = ["Reno Qiu"]
-  spec.email         = ["dechao.qiu@gmail.com"]
+  spec.authors       = ["Buglife"]
+  spec.email         = ["support@buglife.com"]
   spec.summary       = %q{atoslife for Linux.}
   spec.description   = %q{atoslife is used for converting binary addresses within a macho file to symbols.}
-  spec.homepage      = "https://github.com/renoqiu/atosl_ruby"
+  spec.homepage      = "https://github.com/Buglife/atoslife"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)

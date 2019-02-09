@@ -35,6 +35,8 @@ Dir.chdir("#{CWD}/libdwarf") do
 	DIR_DST_LIB = "#{CWD}/dst/lib"
 	DIR_DST_INCLUDE = "#{CWD}/dst/include"
 
+	raise 'goddamnit'
+
 	ENV['CFLAGS'] = "-fPIC -I#{CWD}/dst/include"
     ENV['LDFLAGS'] = "-L#{CWD}/dst/lib"
     puts "• Running configure..."
